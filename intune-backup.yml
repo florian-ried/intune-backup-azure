@@ -243,7 +243,7 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          cat "$(Build.SourcesDirectory)/prod-as-built.md" | md-to-pdf --config-file "$(Build.SourcesDirectory)/md2pdf/pdfconfig.json" --as-html > "$(Build.SourcesDirectory)/prod-as-built.html"
+          cat "$(Build.SourcesDirectory)/prod-as-built.md" | md-to-pdf --config-file "$(Build.SourcesDirectory)/md2pdf/htmlconfig.json" --as-html > "$(Build.SourcesDirectory)/prod-as-built.html"
         workingDirectory: '$(Build.SourcesDirectory)'
         failOnStderr: true
 
