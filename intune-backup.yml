@@ -32,7 +32,7 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          rm -f -r -v "$(Build.SourcesDirectory)/prod-backup"
+          rm -rfv "$(Build.SourcesDirectory)/prod-backup"
         workingDirectory: '$(Build.SourcesDirectory)'
         failOnStderr: false
 
@@ -129,7 +129,7 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          INTRO="Endpoint Manager backup and documentation generated at $(Build.Repository.Uri) <img align=\"right\" width=\"96\" height=\"96\" src=\"./logo.png\">"
+          INTRO="Intune backup and documentation generated at $(Build.Repository.Uri) <img align=\"right\" width=\"96\" height=\"96\" src=\"./logo.png\">"
           IntuneCD-startdocumentation \
               --path="$(Build.SourcesDirectory)/prod-backup" \
               --outpath="$(Build.SourcesDirectory)/prod-as-built.md" \
@@ -149,7 +149,7 @@ jobs:
         script: |
           DATEF=`date +%Y.%m.%d`
           git add --all
-          git commit -m "MEM config as-built $DATEF"
+          git commit -m "Intune config as-built $DATEF"
           git push origin HEAD:main
         workingDirectory: '$(Build.SourcesDirectory)'
         failOnStderr: false
@@ -191,7 +191,7 @@ jobs:
         targetType: 'inline'
         script: |
           DATEF=`date +%Y.%m.%d`
-          git tag -a "v$DATEF" -m "Microsoft Endpoint Manager configuration snapshot $DATEF"
+          git tag -a "v$DATEF" -m "Microsoft Intune configuration snapshot $DATEF"
           git push origin "v$DATEF"
         workingDirectory: '$(Build.SourcesDirectory)'
         failOnStderr: false
