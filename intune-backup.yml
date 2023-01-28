@@ -7,8 +7,8 @@ schedules:
       - main
 
 jobs:
-  - job: backup
-    displayName: backup
+  - job: backup_document
+    displayName: Backup configuration and generate markdown
     pool:
       vmImage: ubuntu-latest
     continueOnError: false
@@ -58,14 +58,13 @@ jobs:
               --mode=1 \
               --output=json \
               --path="$(Build.SourcesDirectory)/prod-backup"
-              #--localauth=./auth.json
-              #--exclude=assignments
         workingDirectory: '$(Build.SourcesDirectory)'
         failOnStderr: true
       env:
         TENANT_NAME: $(TENANT_NAME)
         CLIENT_ID: $(CLIENT_ID)
         CLIENT_SECRET: $(CLIENT_SECRET)
+        API_KEY: $(API_KEY)
 
     # Commit changes and push to repo
     - task: Bash@3
@@ -79,47 +78,6 @@ jobs:
           git push origin HEAD:main
         workingDirectory: '$(Build.SourcesDirectory)'
         failOnStderr: false
-
-  - job: document
-    displayName: document
-    dependsOn: backup
-    pool:
-      vmImage: ubuntu-latest
-    continueOnError: false
-    steps:
-    - checkout: self
-      persistCredentials: true
-
-    # Set git global settings
-    - task: Bash@3
-      displayName: Configure Git
-      inputs:
-        targetType: 'inline'
-        script: |
-          git config --global user.name $(USER_NAME)
-          git config --global user.email $(USER_EMAIL)
-        workingDirectory: '$(Build.SourcesDirectory)'
-        failOnStderr: true
-
-    - task: Bash@3
-      displayName: Pull origin
-      inputs:
-        targetType: 'inline'
-        script: |
-          git pull origin main
-        workingDirectory: '$(Build.SourcesDirectory)'
-        failOnStderr: false
-
-    # Install IntuneCD
-    # https://github.com/almenscorner/IntuneCD
-    - task: Bash@3
-      displayName: Install IntuneCD
-      inputs:
-        targetType: 'inline'
-        script: |
-          pip3 install IntuneCD
-        workingDirectory: '$(Build.SourcesDirectory)'
-        failOnStderr: true
 
     # Create markdown documentation
     # Install IntuneCD
@@ -155,8 +113,8 @@ jobs:
         failOnStderr: false
 
   - job: tag
-    displayName: tag
-    dependsOn: document
+    displayName: Tag repo 
+    dependsOn: backup_document
     pool:
       vmImage: ubuntu-latest
     continueOnError: false
@@ -197,7 +155,7 @@ jobs:
         failOnStderr: false
 
   - job: publish
-    displayName: publish
+    displayName: Publish as-built artefacts
     dependsOn: tag
     pool:
       vmImage: ubuntu-latest
@@ -205,17 +163,6 @@ jobs:
     steps:
     - checkout: self
       persistCredentials: true
-
-    # Set git global settings
-    - task: Bash@3
-      displayName: Configure Git
-      inputs:
-        targetType: 'inline'
-        script: |
-          git config --global user.name $(USER_NAME)
-          git config --global user.email $(USER_EMAIL)
-        workingDirectory: '$(Build.SourcesDirectory)'
-        failOnStderr: true
 
     - task: Bash@3
       displayName: Pull origin
